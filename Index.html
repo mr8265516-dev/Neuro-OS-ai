@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#070b18">
+<title>NUROOS AI — Personal AI OS</title>
+<style>
+:root {
+  --bg: #070b18;
+  --panel: #10182b;
+  --panel2: #131e35;
+  --blue: #4385ff;
+  --cyan: #46e5ff;
+  --text: #edf3ff;
+  --muted: #8d9bb7;
+  --border: rgba(130,160,220,.16);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font-family: Inter, system-ui, Arial, sans-serif;
+}
+button, input, textarea { font: inherit; }
+button { cursor: pointer; }
+.app { display: flex; min-height: 100vh; }
+.sidebar {
+  width: 245px; flex-shrink: 0; padding: 25px 16px;
+  border-right: 1px solid var(--border);
+  background: #0a1020;
+}
+.logo { font-size: 23px; font-weight: 900; letter-spacing: 2px; }
+.logo span { color: var(--cyan); }
+.tagline { font-size: 11px; color: var(--muted); margin: 7px 0 35px; }
+.nav-label { color: #667795; font-size: 10px; letter-spacing: 2px; margin: 22px 10px 10px; }
+.nav {
+  width: 100%; text-align: left; padding: 12px;
+  background: transparent; border: 1px solid transparent;
+  color: #aab8d2; border-radius: 10px; margin: 3px 0;
+}
+.nav:hover, .nav.active {
+  background: #17294a; border-color: #284a80; color: white;
+}
+.status { margin-top: 35px; padding: 14px; border: 1px solid var(--border); border-radius: 12px; font-size: 12px; color: var(--muted); }
+.dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #4ce6a0; margin-right: 7px; }
+.main { min-width: 0; flex: 1; }
+.topbar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 20px 30px; border-bottom: 1px solid var(--border);
+}
+.topbar small { color: var(--muted); }
+.avatar { width: 38px; height: 38px; display:grid; place-items:center; border-radius: 12px; background: linear-gradient(135deg,#2763e7,#47dfff); color:#07101e; font-weight:900; }
+.content { max-width: 1250px; padding: 30px; margin: auto; }
+.eyebrow { color: var(--cyan); font-size: 11px; letter-spacing: 3px; font-weight: 800; }
+h1 { font-size: clamp(28px,4vw,43px); letter-spacing: -1.5px; margin: 12px 0; }
+.muted { color: var(--muted); line-height: 1.7; }
+.hero {
+  padding: 30px; border: 1px solid #284675; border-radius: 20px;
+  background: radial-gradient(ellipse at 90% 5%,rgba(36,115,255,.23),transparent 45%), linear-gradient(135deg,#111e39,#0c1325);
+  position: relative; overflow: hidden;
+}
+.hero p { max-width: 560px; }
+.hero-orb {
+  position: absolute; width: 125px; height: 125px; right: 8%; top: 30px;
+  border-radius: 50%; border: 1px solid rgba(75,205,255,.45);
+  box-shadow: 0 0 55px rgba(50,125,255,.22), inset 0 0 40px rgba(50,125,255,.2);
+}
+.hero-orb:after { content:""; position:absolute; inset:20px; border:1px solid var(--cyan); border-radius:50%; }
+.btn {
+  padding: 11px 16px; border: 1px solid #3976ed; border-radius: 10px;
+  background: linear-gradient(135deg,#3474f5,#2360d3); color:white; font-weight:700;
+}
+.btn.secondary { background:#15213a; border-color:var(--border); }
+.btn:hover { filter:brightness(1.15); }
+.grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; margin:20px 0; }
+.card { background:var(--panel); border:1px solid var(--border); border-radius:15px; padding:19px; min-width:0; }
+.card .icon { font-size:22px; }
+.card h3 { font-size:14px; margin:15px 0 5px; }
+.card p { font-size:12px; color:var(--muted); line-height:1.6; }
+.metric { font-size:27px; font-weight:800; margin-top:10px; }
+.section-title { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:30px 0 14px; }
+.section-title h2 { font-size:17px; margin:0; }
+.two-col { display:grid; grid-template-columns:1.2fr .8fr; gap:15px; }
+input, textarea {
+  width:100%; padding:12px; border-radius:10px; background:#090f1e;
+  border:1px solid var(--border); color:white; outline:none;
+}
+input:focus,textarea:focus { border-color:var(--blue); }
+.row { display:flex; gap:9px; margin-top:12px; }
+.row input { flex:1; min-width:0; }
+.task { display:flex; align-items:center; gap:10px; padding:12px 0; border-bottom:1px solid var(--border); font-size:13px; }
+.task:last-child { border:0; }
+.task input { width:auto; accent-color:var(--blue); }
+.task.done span { text-decoration:line-through; color:#7887a2; }
+.badge { margin-left:auto; color:var(--cyan); font-size:10px; background:#102940; padding:5px 8px; border-radius:6px; }
+.chatbox { height:280px; overflow:auto; display:flex; flex-direction:column; gap:12px; margin-bottom:15px; }
+.bubble { max-width:90%; padding:12px 14px; border-radius:12px; background:#18243b; font-size:13px; line-height:1.7; white-space:pre-wrap; overflow-wrap:anywhere; }
+.bubble.user { align-self:flex-end; background:#1749a0; }
+.note { margin-top:10px; padding:12px; background:#0b1324; border-radius:10px; font-size:13px; line-height:1.6; overflow-wrap:anywhere; }
+.page { display:none; }
+.page.active { display:block; }
+.footer { margin:30px 0 5px; color:#667795; font-size:11px; text-align:center; }
+.menu-btn { display:none; }
+@media(max-width:900px) {
+  .sidebar { width:205px; }
+  .grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .hero-orb { opacity:.35; right:-20px; }
+}
+@media(max-width:650px) {
+  .app { display:block; }
+  .sidebar { display:none; width:100%; border-right:0; border-bottom:1px solid var(--border); }
+  .sidebar.open { display:block; }
+  .menu-btn { display:inline-block; margin-right:10px; }
+  .topbar { padding:14px 17px; }
+  .content { padding:20px 15px; }
+  .hero { padding:22px; }
+  .hero-orb { width:75px; height:75px; top:18px; right:12px; }
+  .two-col { grid-template-columns:1fr; }
+  .grid { gap:10px; }
+  .card { padding:14px; }
+  .metric { font-size:23px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="logo">NUROOS<span> AI</span></div>
+    <div class="tagline">YOUR PERSONAL AI OS</div>
+    <div class="nav-label">WORKSPACE</div>
+    <button class="nav active" data-page="home">◈ &nbsp; Overview</button>
+    <button class="nav" data-page="assistant">✳ &nbsp; AI Assistant</button>
+    <button class="nav" data-page="tasks">☑ &nbsp; LifeOS & Tasks</button>
+    <button class="nav" data-page="brain">▤ &nbsp; Second Brain</button>
+    <button class="nav" data-page="agent">⌘ &nbsp; AI Agent</button>
+    <div class="nav-label">SYSTEM</div>
+    <button class="nav" data-page="privacy">⬡ &nbsp; Privacy & Settings</button>
+    <div class="status"><span class="dot"></span>Interface operational<br><br>AI provider: <b>Not connected</b></div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div><button class="btn secondary menu-btn" id="menuBtn">☰</button><small>PERSONAL WORKSPACE / <span id="crumb">OVERVIEW</span></small></div>
+      <div class="avatar">N</div>
+    </header>
+    <div class="content">
+
+      <section class="page active" id="home">
+        <div class="hero">
+          <div class="eyebrow">YOUR INTELLIGENCE, AMPLIFIED</div>
+          <h1>Think bigger.<br>Do more with NUROOS.</h1>
+          <p class="muted">Your personal command center for ideas, goals, knowledge and AI-powered workflows. One workspace. Your next level.</p>
+          <button class="btn" data-go="assistant">Open AI Assistant ↗</button>
+          <div class="hero-orb"></div>
+        </div>
+        <div class="grid">
+          <div class="card"><div class="icon">☑</div><div class="muted">Open tasks</div><div class="metric" id="taskMetric">0</div><p>Things to move forward</p></div>
+          <div class="card"><div class="icon">▤</div><div class="muted">Knowledge notes</div><div class="metric" id="noteMetric">0</div><p>Ideas saved in your brain</p></div>
+          <div class="card"><div class="icon">✳</div><div class="muted">AI connection</div><div class="metric" style="font-size:20px">Not set</div><p>Connect a provider to enable real AI</p></div>
+          <div class="card"><div class="icon">◷</div><div class="muted">Your workspace</div><div class="metric" style="font-size:20px">Ready</div><p>Local demo mode</p></div>
+        </div>
+        <div class="section-title"><h2>Quick actions</h2></div>
+        <div class="grid">
+          <button class="card" data-go="tasks" style="text-align:left;color:inherit"><div class="icon">＋</div><h3>Add a task</h3><p>Turn your next idea into action.</p></button>
+          <button class="card" data-go="brain" style="text-align:left;color:inherit"><div class="icon">✎</div><h3>Capture an idea</h3><p>Save a thought for later.</p></button>
+          <button class="card" data-go="assistant" style="text-align:left;color:inherit"><div class="icon">✳</div><h3>Ask your AI</h3><p>Explore ideas and get help.</p></button>
+          <button class="card" data-go="agent" style="text-align:left;color:inherit"><div class="icon">⌘</div><h3>Plan a workflow</h3><p>Break a goal into steps.</p></button>
+        </div>
+      </section>
+
+      <section class="page" id="assistant">
+        <div class="eyebrow">INTELLIGENCE INTERFACE</div><h1>AI Assistant</h1>
+        <p class="muted">Ask a question or get help planning. This starter runs in demo mode until an AI provider is securely connected.</p>
+        <div class="card">
+          <div class="chatbox" id="chatbox"><div class="bubble">Welcome to NUROOS AI. 👋<br><br>I can demonstrate basic local planning, but real AI answers require connecting an AI service in a future setup step.</div></div>
+          <form id="chatForm" class="row"><input id="chatInput" placeholder="Ask something or describe your goal..." required><button class="btn">Send ↗</button></form>
+          <p class="muted">Demo mode — messages are not sent to an AI service.</p>
+        </div>
+      </section>
+
+      <section class="page" id="tasks">
+        <div class="eyebrow">DESIGN YOUR DAY</div><h1>LifeOS</h1>
+        <p class="muted">Keep your priorities visible. Tasks are saved locally in this browser.</p>
+        <div class="card">
+          <h3>Add a task</h3>
+          <form id="taskForm" class="row"><input id="taskInput" maxlength="180" placeholder="What do you want to get done?" required><button class="btn">＋ Add</button></form>
+          <div class="section-title"><h2>Your task list</h2><span class="badge" id="taskCount">0 tasks</span></div>
+          <div id="taskList"></div>
+        </div>
+      </section>
+
+      <section class="page" id="brain">
+        <div class="eyebrow">CAPTURE. CONNECT. CREATE.</div><h1>Second Brain</h1>
+        <p class="muted">Store your thoughts and search them later. Notes remain in this browser.</p>
+        <div class="card">
+          <form id="noteForm"><input id="noteTitle" maxlength="100" placeholder="Note title" required style="margin-bottom:10px"><textarea id="noteBody" rows="4" maxlength="5000" placeholder="Write your idea..." required></textarea><div class="row"><button class="btn">Save note ＋</button></div></form>
+          <div class="section-title"><h2>Saved knowledge</h2></div>
+          <input id="noteSearch" placeholder="Search your notes...">
+          <div id="noteList"></div>
+        </div>
+      </section>
+
+      <section class="page" id="agent">
+        <div class="eyebrow">FROM INTENTION TO ACTION</div><h1>AI Agent</h1>
+        <p class="muted">Turn a goal into a suggested plan. This demo does not run external actions.</p>
+        <div class="card">
+          <h3>What do you want to accomplish?</h3>
+          <form id="planForm"><textarea id="goalInput" rows="3" maxlength="500" placeholder="Example: Prepare for my exams in 30 days..." required></textarea><div class="row"><button class="btn">Generate a plan ↗</button></div></form>
+          <div id="planResult"></div>
+        </div>
+      </section>
+
+      <section class="page" id="privacy">
+        <div class="eyebrow">YOUR DATA. YOUR CHOICE.</div><h1>Privacy & Settings</h1>
+        <div class="card">
+          <h3>Workspace status</h3>
+          <p class="muted">NUROOS AI currently stores tasks and notes in this browser using localStorage.</p>
+          <div class="task"><span>AI provider</span><span class="badge">Not connected</span></div>
+          <div class="task"><span>Device control</span><span class="badge">Not enabled</span></div>
+          <div class="task"><span>External actions</span><span class="badge">Not enabled</span></div>
+          <div class="task"><span>Local browser storage</span><span class="badge">Enabled</span></div>
+          <p class="muted">Do not enter passwords, API keys or highly sensitive information in this demo.</p>
+          <button class="btn secondary" id="exportBtn">Export my local data</button>
+          <button class="btn secondary" id="clearBtn">Clear local data</button>
+          <p class="muted">Clear local data permanently deletes the saved tasks and notes from this browser after confirmation.</p>
+        </div>
+      </section>
+
+      <div class="footer">NUROOS AI · PERSONAL OPERATING SYSTEM · STARTER EDITION</div>
+    </div>
+  </main>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+const read = (key, fallback) => {
+  try { return JSON.parse(localStorage.getItem("nuroos_"+key)) ?? fallback; }
+  catch { return fallback; }
+};
+const save = (key, value) => localStorage.setItem("nuroos_"+key, JSON.stringify(value));
+let tasks = read("tasks", []);
+let notes = read("notes", []);
+
+function showPage(id) {
+  document.querySelectorAll(".page").forEach(p => p.classList.toggle("active", p.id === id));
+  document.querySelectorAll(".nav").forEach(b => b.classList.toggle("active", b.dataset.page === id));
+  $("crumb").textContent = id.toUpperCase();
+  $("sidebar").classList.remove("open");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll("[data-page]").forEach(b => b.addEventListener("click", () => showPage(b.dataset.page)));
+document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => showPage(b.dataset.go)));
+$("menuBtn").addEventListener("click", () => $("sidebar").classList.toggle("open"));
+
+function renderTasks() {
+  $("taskList").replaceChildren();
+  tasks.forEach((task, i) => {
+    const row = document.createElement("label");
+    row.className = "task" + (task.done ? " done" : "");
+    const check = document.createElement("input");
+    check.type = "checkbox"; check.checked = task.done;
+    check.addEventListener("change", () => { tasks[i].done = check.checked; save("tasks",tasks); renderTasks(); });
+    const title = document.createElement("span"); title.textContent = task.title;
+    const del = document.createElement("button"); del.className = "btn secondary"; del.textContent = "×"; del.setAttribute("aria-label","Delete task");
+    del.addEventListener("click", () => { tasks.splice(i,1); save("tasks",tasks); renderTasks(); });
+    row.append(check,title,del); $("taskList").append(row);
+  });
+  const open = tasks.filter(t => !t.done).length;
+  $("taskMetric").textContent = open;
+  $("taskCount").textContent = tasks.length + (tasks.length === 1 ? " task" : " tasks");
+}
+$("taskForm").addEventListener("submit", e => {
+  e.preventDefault(); const title = $("taskInput").value.trim(); if (!title) return;
+  tasks.unshift({title,done:false}); save("tasks",tasks); $("taskInput").value = ""; renderTasks();
+});
+
+function renderNotes() {
+  const query = $("noteSearch").value.trim().toLowerCase();
+  $("noteList").replaceChildren();
+  notes.filter(n => (n.title+" "+n.body).toLowerCase().includes(query)).forEach(note => {
+    const box = document.createElement("div"); box.className = "note";
+    const title = document.createElement("strong"); title.textContent = note.title;
+    const body = document.createElement("p"); body.textContent = note.body; body.className = "muted";
+    const del = document.createElement("button"); del.className = "btn secondary"; del.textContent = "Delete";
+    del.addEventListener("click", () => { notes = notes.filter(n => n.id !== note.id); save("notes",notes); renderNotes(); });
+    box.append(title,body,del); $("noteList").append(box);
+  });
+  $("noteMetric").textContent = notes.length;
+}
+$("noteForm").addEventListener("submit", e => {
+  e.preventDefault();
+  notes.unshift({id:Date.now(),title:$("noteTitle").value.trim(),body:$("noteBody").value.trim()});
+  save("notes",notes); $("noteTitle").value=""; $("noteBody").value=""; renderNotes();
+});
+$("noteSearch").addEventListener("input", renderNotes);
+
+$("chatForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const text = $("chatInput").value.trim(); if (!text) return;
+  const user = document.createElement("div"); user.className="bubble user"; user.textContent=text;
+  $("chatbox").append(user);
+  const answer = document.createElement("div"); answer.className="bubble";
+  answer.textContent = "Demo response: I can help you break this down into manageable steps. Try the AI Agent tab to generate a structured plan. Real AI responses are not connected yet.";
+  $("chatbox").append(answer); $("chatInput").value="";
+  $("chatbox").scrollTop=$("chatbox").scrollHeight;
+});
+
+$("planForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const goal = $("goalInput").value.trim(); if (!goal) return;
+  const steps = [
+    "Define the exact outcome and what success looks like.",
+    "Break the goal into 3–5 small, achievable tasks.",
+    "Choose the first task and schedule time for it.",
+    "Review your progress and adjust the next steps."
+  ];
+  const box = $("planResult"); box.replaceChildren();
+  const heading = document.createElement("h3"); heading.textContent="Suggested plan";
+  const intro = document.createElement("p"); intro.className="muted"; intro.textContent="Goal: "+goal;
+  const list = document.createElement("ol");
+  steps.forEach(s => { const li=document.createElement("li"); li.textContent=s; li.style.margin="12px 0"; list.append(li); });
+  const add = document.createElement("button"); add.className="btn"; add.textContent="Add first step to tasks";
+  add.addEventListener("click", () => { tasks.unshift({title:steps[0]+" — "+goal,done:false}); save("tasks",tasks); renderTasks(); add.textContent="Added to tasks ✓"; });
+  box.append(heading,intro,list,add);
+});
+
+$("exportBtn").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify({tasks,notes},null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob); const a=document.createElement("a");
+  a.href=url; a.download="nuroos-backup.json"; a.click(); URL.revokeObjectURL(url);
+});
+$("clearBtn").addEventListener("click", () => {
+  if (!confirm("Delete all NUROOS tasks and notes saved in this browser?")) return;
+  tasks=[]; notes=[]; save("tasks",tasks); save("notes",notes); renderTasks(); renderNotes();
+});
+renderTasks(); renderNotes();
+</script>
+</body>
+  </html>
